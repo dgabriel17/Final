@@ -36,8 +36,10 @@
                         <ul>
                             <li>{{ row[2] }}</li>
                             <br>
-                            <li>{{ row[5] }}</li>
-                            <li>{{ row[6] }}</li>
+                            <li><button><img src="/static/like_btn.png" alt="Like Button" class="like_dislike"></button>
+                                <span class="count">{{ row[5] }}</span></li>
+                            <li><button><img src="/static/dislike_btn.webp" alt="Dislike Button" class="like_dislike"></button>
+                                <span class="count">{{ row[6] }}</span></li>
                         </ul>
                     </div>
 
@@ -45,6 +47,9 @@
                         <ul>
                             <li>Published:</li>
                             <li>{{ row[4] }}</li>
+                            <br>
+                            <br>
+                            <li><button class="Btn">Reply</button></li>
                         </ul>
                     </div>
                 </div>
