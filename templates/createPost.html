@@ -8,6 +8,18 @@
     </head>
 
     <body>
+        <nav>
+           <!-- You can dynamically change DOM elements depending on login status with the loggedIn variable  -->
+            {% if loggedIn %}
+                <a href="redirectAccountPage" id="redirectAccountPage"> Account </a>
+                <a href="redirectFrontPage" id="redirectFrontPage"> Home </a>
+            {% else %}
+                <a href="redirectLoginPage" id="redirectLoginPage"> Login </a>
+            {% endif %}
+        </nav>
+
+        <br><br>
+
         <form action="http://127.0.01:5000/createPost" method = "POST" enctype="multipart/form-data">
             <p>Enter Text Content</p>
 
