@@ -20,7 +20,7 @@
 
         <br><br>
 
-        <form action="http://127.0.01:5000/createPost" method = "POST" enctype="multipart/form-data">
+        <form action="{{ url_for('createPost') }}" method = "POST" enctype="multipart/form-data">
             <p>Enter Text Content</p>
 
             <!--     Changed this tag from an input to a textarea tag, it looks better       -->
@@ -30,7 +30,7 @@
 
             <p>Select Tags</p>
             {% for row in tags %}
-            <input type="checkbox" id="{{ row[1] }}" name="postTags" value="{{ row[1] }}">
+            <input type="checkbox" id="{{ row[0] }}" name="postTags[]" value="{{ row[0] }}">
             <label for="{{ row[1] }}"> {{ row[1] }}</label><br>
             {% endfor %}
             <p><input class="loginBtn" type = "submit" value = "Post" /></p>

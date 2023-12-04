@@ -47,7 +47,43 @@ class Logins(UserMixin, db.Model):
         
         #How the object is represented on call
         def __repr__(self):
-            return self.username
+            return self.id
+
+class Users(UserMixin, db.Model):
+    user_id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    username = db.Column(db.String, unique=True, nullable=False)
+    bio = db.Column(db.String, nullable=False)
+    profile_picture = db.Column(db.LargeBinary, nullable=False)
+    creation_date = db.Column(db.String, nullable=False)
+    views = db.Column(db.Integer)
+
+class Posts(UserMixin, db.Model):
+    postId = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    post_userID = db.Column(db.Integer)    
+    post_textContent = db.Column(db.String)
+    post_imageContent = db.Column(db.LargeBinary)
+    post_creationDate = db.Column(db.String)
+    post_likes = db.Column(db.Integer)  
+    post_dislikes = db.Column(db.Integer)  
+    parent_postID = db.Column(db.Integer)  
+
+class PostTags(UserMixin, db.Model):
+    rowID = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.postId'), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.tagID'), nullable=False)
+
+    post = db.relationship('Posts', backref=db.backref('post_tags', lazy=True))
+    tag = db.relationship('Tags', backref=db.backref('post_tags', lazy=True))
+
+
+
+class Tags(UserMixin, db.Model):
+    tagID = db.Column(db.Integer, primary_key=True)
+    tagName = db.Column(db.String, unique=True)
+
+
+    
+
 
 #enables us to call current user
 @login_manager.user_loader
@@ -180,7 +216,7 @@ def createAccount():
             #Commit changes to db
             db.session.commit()
 
-            print("added accoutn")
+            print("added accout")
 
         # print (_email + newPassword)
 
@@ -231,6 +267,7 @@ def redirectFrontPage():
 #Call this route to redirect to the create Post Page
     #tags will come as a tuple of tuples, including all data from tags table. This will be used to dynamically change the form
 @app.route("/redirectCreatePost")
+@login_required
 def redirectCreatePost():
     sql = """SELECT * 
                 FROM Tags"""
@@ -248,16 +285,76 @@ def redirectCreatePost():
     #will redirect to front page
         ### WORK IN PROGRESS ###
 @app.route("/createPost", methods = ['GET', 'POST'])
+@login_required
 def createPost():
+
     if request.method == 'POST':
         _textContent = request.form['textContent'] 
         _imageContent = request.files['imageContent']
 
-        postTags = request.form.getlist('postTags')
+        postTags = request.form.getlist('postTags[]')
         print(_textContent)
         print(postTags)
 
-    return render_template("/redirectCreatePost.html")
+        # Create the post in Posts table:
+        sql = """INSERT INTO Posts(postID, post_userID, post_textContent,
+                                    post_imageContent, post_creationDate,
+                                    post_likes, post_dislikes, parent_postID)
+                                VALUES(?, ?, ?, ?, datetime('now', 'localtime'), ?, ?, ?)"""
+        
+        if _imageContent is None:
+            _imageData = None
+        else: 
+            _imageData = base64.b64encode(_imageContent.read()).decode('utf-8')
+        
+        _userID = current_user.id
+
+        maxPostID = db.session.query(func.max(Posts.postId)).first()
+
+        _postID = maxPostID[0] + 1
+
+
+        args = [_postID, _userID, _textContent, _imageData, 0, 0, None]
+
+        #Connect to DB and execute Sql -> Inputs new User to UserTable based on new account Creation
+        conn = openConnection(database)
+        conn.execute(sql, args)
+        conn.commit()
+
+        #Update tags table: 
+
+        
+        sql = """INSERT INTO PostTags(rowId, postID, tagID)
+                                VALUES(?, ?, ?)"""
+        
+        for tag in postTags:
+            maxRowQuery = """SELECT MAX(rowID) 
+                    FROM PostTags"""
+            
+            conn = openConnection(database)
+            cur = conn.cursor()
+            cur.execute(maxRowQuery)
+            _maxRow = cur.fetchall()
+
+            # print("maxRow: " + str(type(_maxRow[0])))
+            # print("maxRow: " + str(_maxRow[0][0]))
+            # print("PostID: " + _postID)
+
+            args = [(_maxRow[0][0] + 1), _postID, tag]
+
+
+            conn.execute(sql, args)
+            conn.commit()
+
+
+        print(_maxRow[0])
+
+        
+        
+        
+            
+    
+        return redirect(url_for('redirectFrontPage'))
 
 
 

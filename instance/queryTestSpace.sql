@@ -37,6 +37,9 @@
 
 
 -- Funtions to attatch usernames belonging to a post's user to the postQuery (replacing the post_userID column)
-SELECT postID, username, post_textContent, post_imageContent, post_creationDate, post_likes, post_dislikes 
-FROM Posts, Users 
-WHERE post_userID = user_id;
+-- SELECT postID, username, post_textContent, post_imageContent, post_creationDate, post_likes, post_dislikes 
+-- FROM Posts, Users 
+-- WHERE post_userID = user_id;
+
+SELECT MAX(rowID) 
+FROM PostTags;
