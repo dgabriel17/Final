@@ -39,12 +39,12 @@ h1 {
 }
 
 .postBox {
-    width: 60%; /* Adjust the width as needed */
-    margin: 20px auto; /* Center the box and add margin */
-    padding: 30px; /* Add padding to the box */
-    border: 5px solid #156064; /* Add a border */
-    background-color: #f0f0f0; /* Set background color */
-    overflow: auto; /* Enable overflow for long content */
+    width: 60%;
+    margin: 20px auto;
+    padding: 30px;
+    border: 5px solid #156064;
+    overflow: auto;
+    border-radius: 20px;
 }
 
 .postPic {
@@ -117,4 +117,19 @@ ul {
     height: 20px;
     width: 20px;
 
+}
+
+label {
+    font-family: "Greyhound Chrome", sans-serif;
+    font-size: 20px;
+    text-align:center;
+    color: #156064;
+}
+
+select {
+    color: #156064;
+}
+
+option {
+    color: #156064;
 }

@@ -21,6 +21,15 @@
         <br><br>
         <h1>Cuddle Puddle</h1>
 
+        <center>
+        <label for="tags">Filter Posts:</label>
+            <select id="tags" name="filters">
+              <option value="all">All</option>
+              <option value="tag1">Tag1</option>
+              <option value="tag2">Tag2</option>
+            </select>
+        </center>
+
         {% for row in postData %}
             <div class="postBox">
 <!--                style="border-color: #156064;"-->
