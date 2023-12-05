@@ -2,7 +2,7 @@
 <html>
 
     <head>
-        <title>Cuddle Pile - Home</title>
+        <title>Cuddle Puddle - Home</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='/styling.css') }}">
     </head>
 
@@ -19,15 +19,18 @@
 
         <!--   Add spacing     -->
         <br><br>
-        <h1>Cuddle Pile</h1>
+        <h1>Cuddle Puddle</h1>
 
         {% for row in postData %}
             <div class="postBox">
+<!--                style="border-color: #156064;"-->
+
+                <button><img src="/static/bookmark.png" alt="Bookmark Post" class="bookmark"></button>
 
                 <div class="postContent">
                     <div class="left">
                         <ul>
-                            <li><img src="data:image/png;base64,{{ row[3] }}" alt="Profile Picture" width="100" class="postPic"></li>
+<!--                            <li><img src="data:image/png;base64,{{ row[3] }}" alt="Picture Content" width="100" class="postPic"></li>-->
                             <center><li>{{ row[1] }}</li></center>
                         </ul>
                     </div>
@@ -36,7 +39,9 @@
                         <ul>
                             <li>{{ row[2] }}</li>
                             <br>
-                            <li><button><img src="/static/like_btn.png" alt="Like Button" class="like_dislike"></button>
+                            <li><img src="data:image/png;base64,{{ row[3] }}" alt="Picture Content" width="100" class="postPic"></li>
+                            <br>
+                            <li><button ><img src="/static/like_btn.png" alt="Like Button" class="like_dislike"></button>
                                 <span class="count">{{ row[5] }}</span></li>
                             <li><button><img src="/static/dislike_btn.webp" alt="Dislike Button" class="like_dislike"></button>
                                 <span class="count">{{ row[6] }}</span></li>
