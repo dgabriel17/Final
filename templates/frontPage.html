@@ -14,6 +14,7 @@
             {% if loggedIn %}
                 <a href="/viewAccountInfo" id="redirectAccountPage"> Account </a>
                 <a href="redirectCreatePost" id="redirectCreatePost"> Create Post </a>
+                <a href="logout" id="logout"> Logout </a>
             {% else %}
                 <a href="redirectLoginPage" id="redirectLoginPage"> Login </a>
             {% endif %}
@@ -47,6 +48,8 @@
                     <div class="left">
                         <ul>
 <!--                            <li><img src="data:image/png;base64,{{ row[3] }}" alt="Picture Content" width="100" class="postPic"></li>-->
+                            <!-- ** This is the pfp ** -->
+                            <li><img src="data:image/png;base64,{{ row[7] }}" alt="Picture Content" width="100" class="postPic"></li>
                             <center><li>{{ row[1] }}</li></center>
                         </ul>
                     </div>
@@ -55,8 +58,7 @@
                         <ul>
                             <li>{{ row[2] }}</li>
                             <br>
-                            <!-- ** This is the pfp ** -->
-                            <li><img src="data:image/png;base64,{{ row[7] }}" alt="Picture Content" width="100" class="postPic"></li>
+
                             <br>
                                     <br>
                                     <!-- ** This is the post_imageContent ** -->
@@ -70,8 +72,8 @@
                                                 ** Will remove like/dislike data from Posts table. The like/dislike table will be queried instead to fill in this data dynamically  -->
  
                             <li><button onclick="likePost('{{row[0]}}')"><img src="/static/like_btn.png" alt="Like Button" class="like_dislike"></button>
-                                <span class="count" id="likeButton{{row[0]}}">{{ row[5] }}</span></li>
-                            <li><button onclick="dislikePost('{{row[0]}}')"><img src="/static/dislike_btn.webp" alt="Dislike Button" class="like_dislike"></button>
+                                <span class="count" id="likeButton{{row[0]}}">{{ row[5] }}</span>
+                            <button onclick="dislikePost('{{row[0]}}')"><img src="/static/dislike_btn.webp" alt="Dislike Button" class="like_dislike"></button>
                                 <span class="count" id="dislikeButton{{ row[0] }}">{{ row[6] }}</span></li>
                         </ul>
                     </div>

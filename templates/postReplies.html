@@ -2,7 +2,7 @@
 <html>
 
     <head>
-        <title>Cuddle Puddle - postReplies</title>
+        <title>Cuddle Puddle - Reply</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='/styling.css') }}">
     </head>
 
@@ -12,9 +12,10 @@
         <nav>
            <!-- You can dynamically change DOM elements depending on login status with the loggedIn variable  -->
            <a href="/redirectFrontPage" id="redirectFrontPage"> Home </a>
+
         </nav>
         <br><br>
-        <h1>Head Post: </h1>
+        <h1 style="font-style:normal;">Head Post</h1>
             <div class="postBox">
 <!--                style="border-color: #156064;"-->
 
@@ -23,6 +24,8 @@
                 <div class="postContent">
                     <div class="left">
                         <ul>
+                            <!-- ** This is the pfp ** -->
+                            <li><img src="data:image/png;base64,{{ headPost[0][7] }}" alt="Picture Content" width="100" class="postPic"></li>
                             <center><li>{{ headPost[0][1] }}</li></center>
                         </ul>
                     </div>
@@ -30,9 +33,9 @@
                     <div class="center">
                         <ul>
                             <li>{{ headPost[0][2] }}</li>
-                            <br>
-                            <!-- ** This is the pfp ** -->
-                            <li><img src="data:image/png;base64,{{ headPost[0][7] }}" alt="Picture Content" width="100" class="postPic"></li>
+<!--                            <br>-->
+<!--                            &lt;!&ndash; ** This is the pfp ** &ndash;&gt;-->
+<!--                            <li><img src="data:image/png;base64,{{ headPost[0][7] }}" alt="Picture Content" width="100" class="postPic"></li>-->
                             <br>
                                     <br>
                                     <!-- ** This is the post_imageContent ** -->
@@ -40,8 +43,8 @@
                                     <br>        
 
                             <li><button onclick="likePost('{{headPost[0][0]}}')"><img src="/static/like_btn.png" alt="Like Button" class="like_dislike"></button>
-                                <span class="count" id="likeButton{{headPost[0][0]}}">{{ headPost[0][5] }}</span></li>
-                            <li><button onclick="dislikePost('{{headPost[0][0]}}')"><img src="/static/dislike_btn.webp" alt="Dislike Button" class="like_dislike"></button>
+                                <span class="count" id="likeButton{{headPost[0][0]}}">{{ headPost[0][5] }}</span>
+                            <button onclick="dislikePost('{{headPost[0][0]}}')"><img src="/static/dislike_btn.webp" alt="Dislike Button" class="like_dislike"></button>
                                 <span class="count" id="dislikeButton{{ headPost[0][0] }}">{{ headPost[0][6] }}</span></li>
                         </ul>
                     </div>
@@ -60,7 +63,7 @@
             </div>
 
             <br><br>
-            <h1>Reply Posts: </h1>
+            <h1 style="font-style: normal;">Reply Posts</h1>
 
 
             {% for row in replyPosts%}
@@ -72,6 +75,8 @@
                                 <div class="postContent">
                                     <div class="left">
                                         <ul>
+                                            <!-- ** This is the pfp ** -->
+                                            <li><img src="data:image/png;base64,{{ row[7] }}" alt="Picture Content" width="100" class="postPic"></li>
                                             <center><li>{{ row[1] }}</li></center>
                                         </ul>
                                     </div>
@@ -79,9 +84,9 @@
                                     <div class="center">
                                         <ul>
                                             <li>{{ row[2] }}</li>
-                                            <br>
-                                            <!-- ** This is the pfp ** -->
-                                            <li><img src="data:image/png;base64,{{ row[7] }}" alt="Picture Content" width="100" class="postPic"></li>
+<!--                                            <br>-->
+<!--                                            &lt;!&ndash; ** This is the pfp ** &ndash;&gt;-->
+<!--                                            <li><img src="data:image/png;base64,{{ row[7] }}" alt="Picture Content" width="100" class="postPic"></li>-->
                                             <br>
                                                     <br>
                                                     <!-- ** This is the post_imageContent ** -->
@@ -89,8 +94,8 @@
                                                     <br>        
                 
                                             <li><button onclick="likePost('{{row[0]}}')"><img src="/static/like_btn.png" alt="Like Button" class="like_dislike"></button>
-                                                <span class="count" id="likeButton{{row[0]}}">{{ headPost[0][5] }}</span></li>
-                                            <li><button onclick="dislikePost('{{row[0]}}')"><img src="/static/dislike_btn.webp" alt="Dislike Button" class="like_dislike"></button>
+                                                <span class="count" id="likeButton{{row[0]}}">{{ headPost[0][5] }}</span>
+                                            <button onclick="dislikePost('{{row[0]}}')"><img src="/static/dislike_btn.webp" alt="Dislike Button" class="like_dislike"></button>
                                                 <span class="count" id="dislikeButton{{ row[0] }}">{{ row[6] }}</span></li>
                                         </ul>
                                     </div>
@@ -110,15 +115,18 @@
 
                     {% endfor %}
 
-                    <h3>Reply to this post: </h3>
+        <center>
+                    <h3 style="font-size: 25px; color: #156064">Reply to this post: </h3>
 
-                    <form action="http://localhost:5000/createReplyPost/{{headPost[0][0]}}" method = "POST" enctype="multipart/form-data">
-                        <p>Enter Text Content</p>
+                    <form action="http://127.0.0.1:5000/createReplyPost/{{headPost[0][0]}}" method = "POST" enctype="multipart/form-data">
+
+                        <p style="font-size: 20px; color: #156064">Enter Text Content</p>
             
                         <!--     Changed this tag from an input to a textarea tag, it looks better       -->
-                        <textarea id="textContent" name="textContent" placeholder="Post Content..."></textarea><br>
-                        <p>Enter Image Content</p>
+                        <textarea id="textContent" name="textContent" placeholder="Reply Content..."></textarea><br>
+                        <p style="font-size: 20px; color: #156064">Enter Image Content</p>
                         <input type="file" name="imageContent" accept="image/png, image/jpeg"><br>
             
-                        <p><input class="loginBtn" type = "submit" value = "Post" /></p>
+                        <p style="font-size: 20px; color: #156064"><input class="Btn" style="width: 60px;" type = "submit" value = "Post" /></p>
                       </form>
+        </center>

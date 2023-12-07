@@ -8,23 +8,42 @@
     <body>
         <nav>
             <a href="/redirectFrontPage"> HomePage </a>
+            <a href="logout" id="logout"> Logout </a>
         </nav><br><br>
         <br><br>
-        <h1>Account Info</h1>
+        <h1>{{ accountInfo[1] }}'s Account</h1>
 
-            <p>user_id: {{ accountInfo[0] }}</p>
-            <p>username: {{ accountInfo[1] }}</p>
-            <a href="/redirectEditUsername"><button>Edit Username</button></a>
-            <p>bio: {{ accountInfo[2] }}</p>
-            <a href="/redirectEditBio"><button>Edit Bio</button></a>
-            <p>profile_picture: </p><img src="data:image/png;base64,{{ accountInfo[3] }}" alt="pfp" width="100" class="pfp">
-            <a href="/redirectEditPFP"><button>Edit PFP</button></a>
-            <p>creation_date: {{ accountInfo[4] }}</p>
-            <p>views: {{ accountInfo[5] }}</p>
-            <a href="/viewLikedPosts"><button>View Liked Posts</button></a>
-            <a href="/viewDislikedPosts"><button>View Disliked Posts</button></a>
-            <a href="/viewMyPosts"><button>View My Posts</button></a>
-            <a href="/viewMyReplies"><button>View My Replies</button></a>
-            <a href="/viewMyBookmarks"><button>View My Bookmarks</button></a>
+<!--            <p>user_id: {{ accountInfo[0] }}</p>-->
+<!--            <p>username: {{ accountInfo[1] }}</p>-->
+            <a href="/redirectEditUsername"><button class="loginBtn" style="width:200px;">Edit Username</button></a>
+        <br>
+        <br>
+        <div class="accountContent">
+
+            <div class="acc_left">
+                <center>
+                <p style="font-style: normal;">Account Content</p>
+                <a href="/viewLikedPosts"><button class="loginBtn" style="width: 200px;">Liked Posts</button></a> <br><br>
+                <a href="/viewDislikedPosts"><button class="loginBtn" style="width: 200px;">Disliked Posts</button></a><br><br>
+                <a href="/viewMyPosts"><button class="loginBtn" style="width: 200px;">My Posts</button></a><br><br>
+                <a href="/viewMyReplies"><button class="loginBtn" style="width: 200px;">My Replies</button></a><br><br>
+                <a href="/viewMyBookmarks"><button class="loginBtn" style="width: 200px;">My Bookmarks</button></a>
+                </center>
+            </div>
+
+            <div class="acc_center">
+            <img src="data:image/png;base64,{{ accountInfo[3] }}" alt="pfp" width="400" class="postPic">
+        <br>
+        <br>
+            <a href="/redirectEditPFP"><button class="loginBtn">Edit PFP</button></a>
+        <br>
+            <p style="font-style: normal;">About me: {{ accountInfo[2] }}</p>
+            <a href="/redirectEditBio"><button class="loginBtn">Edit Bio</button></a>
+
+            <p style="font-style: normal;">Member since: {{ accountInfo[4] }}</p>
+            <p style="font-style: normal;">Profile Visits: {{ accountInfo[5] }}</p>
+            </div>
+
+        </div>
     </body>
 </html>

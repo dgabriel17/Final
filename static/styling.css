@@ -90,7 +90,6 @@ ul {
     color: #e6e6e6;
     border-color: #156064;
     border-radius: 15px;
-
     display: inline-flex;
     align-items: center;
 }
@@ -132,4 +131,10 @@ select {
 
 option {
     color: #156064;
+}
+
+textarea {
+    width: 60%;
+    height: 100px;
+    padding: 5px;
 }

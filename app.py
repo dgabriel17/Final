@@ -150,7 +150,7 @@ def login():
     if user is None or not user.check_password(_password):
         error = "Invalid Username or Password"
         flash("Incorrect Username or password")
-        return render_template("login.html", error = error)
+        return render_template("login_profile/login.html", error = error)
     else:
         login_user(user)
         next_page = request.args.get('next')
@@ -166,7 +166,7 @@ def signUp():
 @login_required
 def logout():
     logout_user()
-    return render_template("login.html")
+    return redirect(url_for('redirectLoginPage'))
 
 #Recieves data from createUser.html- Updates Users table with new profile data 
     #Redirects back to homepage

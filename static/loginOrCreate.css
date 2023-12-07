@@ -78,3 +78,26 @@ textarea {
     height: 100px;
     padding: 5px;
 }
+
+.postPic {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.accountContent {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+
+}
+
+.acc_left {
+    justify-self: start;
+}
+
+.acc_center {
+    justify-self: center;
+}
+
+.acc_right {
+    justify-self: end;
+}
