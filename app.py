@@ -21,7 +21,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///main.db"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'redirectLoginPage'
 login_manager.session_protection = "strong"
 
 database = r"instance/main.db"
@@ -278,10 +278,43 @@ def redirectFrontPage():
     cur.execute(sql)
     _postData = cur.fetchall()
 
+
     if current_user.is_authenticated:
-        return render_template("frontPage.html", postData = _postData, loggedIn = 1, tags = _tags)
+        return redirect(url_for('redirectFrontPageLoggedIn'))
     else:
         return render_template("frontPage.html", postData = _postData, tags = _tags)
+    
+@app.route("/redirectFrontPageLoggedIn", methods=['GET'])
+@login_required
+def redirectFrontPageLoggedIn():
+    sql = """SELECT postID, username,  post_textContent, post_imageContent, post_creationDate, post_likes, post_dislikes, profile_picture
+            FROM Posts, Users 
+            WHERE post_userID = user_id AND 
+                    parent_postID IS NULL """
+    
+    tagQuery = """SELECT * 
+                FROM Tags"""
+    
+    bookMarkQuery = """ SELECT * 
+                        FROM Bookmarks
+                            WHERE  b_userID = ?"""
+    
+    conn = openConnection(database)
+    cur = conn.cursor()
+
+        #Execute query and save all rows to a variable
+    cur.execute(tagQuery)
+    _tags = cur.fetchall()
+
+        #Execute query and save all rows to a variable
+    cur.execute(sql)
+    _postData = cur.fetchall()
+
+    cur.execute(bookMarkQuery, (current_user.id, ))
+    _currentUsersBookmarkedPosts = cur.fetchall()
+
+    return render_template("frontPage.html", postData = _postData, loggedIn = 1, tags = _tags, currentUsersBookmarkedPosts=_currentUsersBookmarkedPosts)
+
     
 @app.route("/filterPosts", methods=['POST'])
 def filterPosts():
@@ -297,7 +330,7 @@ def filterPosts():
                     FROM Posts, Users, 
                     (
                         SELECT postID as p_ID
-                        FROM PostTags 
+                        FROM post_tags 
                         WHERE tagID = ?
                     )
                     WHERE postID = p_ID AND 
@@ -384,12 +417,12 @@ def createPost():
         #Update tags table: 
 
         
-        sql = """INSERT INTO PostTags(rowId, postID, tagID)
+        sql = """INSERT INTO post_tags(rowId, postID, tagID)
                                 VALUES(?, ?, ?)"""
         
         for tag in postTags:
             maxRowQuery = """SELECT MAX(rowID) 
-                    FROM PostTags"""
+                    FROM post_tags"""
             
             conn = openConnection(database)
             cur = conn.cursor()
@@ -410,39 +443,44 @@ def createPost():
 @login_required
 def createReplyPost(_postID):
     if request.method == 'POST':
-        _textContent = request.form['textContent'] 
-        _imageContent = request.files['imageContent']
+        if current_user.is_authenticated:
+            _textContent = request.form['textContent'] 
+            _imageContent = request.files['imageContent']
 
-        postTags = request.form.getlist('postTags[]')
-        print(_textContent)
-        print(postTags)
+            postTags = request.form.getlist('postTags[]')
+            print(_textContent)
+            print(postTags)
 
-        # Create the post in Posts table:
-        sql = """INSERT INTO Posts(postID, post_userID, post_textContent,
-                                    post_imageContent, post_creationDate,
-                                    post_likes, post_dislikes, parent_postID)
-                                VALUES(?, ?, ?, ?, datetime('now', 'localtime'), ?, ?, ?)"""
-        
-        if _imageContent is None:
-            _imageData = None
-        else: 
-            _imageData = base64.b64encode(_imageContent.read()).decode('utf-8')
+            # Create the post in Posts table:
+            sql = """INSERT INTO Posts(postID, post_userID, post_textContent,
+                                        post_imageContent, post_creationDate,
+                                        post_likes, post_dislikes, parent_postID)
+                                    VALUES(?, ?, ?, ?, datetime('now', 'localtime'), ?, ?, ?)"""
+            
+            if _imageContent is None:
+                _imageData = None
+            else: 
+                _imageData = base64.b64encode(_imageContent.read()).decode('utf-8')
 
-        _userID = current_user.id
+            _userID = current_user.id
 
-        maxPostID = db.session.query(func.max(Posts.postId)).first()
+            maxPostID = db.session.query(func.max(Posts.postId)).first()
 
-        _postRowID = maxPostID[0] + 1
+            _postRowID = maxPostID[0] + 1
 
 
-        args = [_postRowID, _userID, _textContent, _imageData, 0, 0, _postID]
+            args = [_postRowID, _userID, _textContent, _imageData, 0, 0, _postID]
 
-        #Connect to DB and execute Sql -> Inputs new User to UserTable based on new account Creation
-        conn = openConnection(database)
-        conn.execute(sql, args)
-        conn.commit()
+            #Connect to DB and execute Sql -> Inputs new User to UserTable based on new account Creation
+            conn = openConnection(database)
+            conn.execute(sql, args)
+            conn.commit()
 
-    return redirect(url_for('redirectPostReplies',_postID=_postID))
+            return redirect(url_for('redirectPostReplies',_postID=_postID))
+        else:
+            return redirect(url_for('redirectLoginPage'))
+
+
                 
 
 @app.route("/likePost/<_postID>", methods=['POST'])
@@ -643,15 +681,15 @@ def redirectEditUsername():
 def editUsername():
 
     if request.method == 'POST':
-        _newUsername = request.form['newUsername'] 
+        _newUsername = request.form['newUsername']
 
-        _currentUser = Users.query.filter_by(user_id = current_user.id).one()
+        # Update the username in the database
+        user = Users.query.filter_by(user_id=current_user.id).first()
+        if user:
+            user.username = _newUsername
+            db.session.commit()
 
-        _currentUser.username = _newUsername
-
-        db.session.commit()
-
-    return redirect(url_for('viewAccountInfo'))
+        return redirect(url_for('viewAccountInfo'))
 
 @app.route("/redirectEditBio", methods=['GET'])
 @login_required
@@ -690,8 +728,9 @@ def editPFP():
                         WHERE user_id = ?"""
 
         conn = openConnection(database)
+        cur = conn.cursor()
         args = [base64.b64encode(_newPFP.read()).decode('utf-8'), current_user.id]
-        conn.execute(sql, args)
+        cur.execute(sql, args)
         conn.commit()
 
         # Update the profile_picture field in the Users table with binary data
@@ -715,17 +754,23 @@ def viewLikedPosts():
                     WHERE postID = l_postID AND
                             post_userID ==  user_id"""
     
+    bookMarkQuery = """ SELECT * 
+                        FROM Bookmarks
+                            WHERE  b_userID = ?"""
+    
         # sql = """SELECT postID, username,  post_textContent, post_imageContent, post_creationDate, post_likes, post_dislikes, profile_picture
         #     FROM Posts, Users WHERE post_userID = user_id"""
 
     conn = openConnection(database)
     cur = conn.cursor()
+
     args = (current_user.id, )
     cur.execute(sql, args)
-
     _postData = cur.fetchall()
 
-    return render_template("accountInfo/viewLikedPosts.html", postData = _postData)
+    cur.execute(bookMarkQuery, (current_user.id, ))
+    _currentUsersBookmarkedPosts = cur.fetchall()
+    return render_template("accountInfo/viewLikedPosts.html", postData = _postData, currentUsersBookmarkedPosts=_currentUsersBookmarkedPosts)
 
 @app.route("/viewDislikedPosts", methods=['GET'])
 @login_required
@@ -742,18 +787,25 @@ def viewDislikedPosts():
                     ), Users
                     WHERE postID = d_postID AND
                             post_userID ==  user_id"""
+
+    bookMarkQuery = """ SELECT * 
+                        FROM Bookmarks
+                            WHERE  b_userID = ?"""
     
         # sql = """SELECT postID, username,  post_textContent, post_imageContent, post_creationDate, post_likes, post_dislikes, profile_picture
         #     FROM Posts, Users WHERE post_userID = user_id"""
 
     conn = openConnection(database)
     cur = conn.cursor()
+
     args = (current_user.id, )
     cur.execute(sql, args)
-
     _postData = cur.fetchall()
 
-    return render_template("accountInfo/viewDislikedPosts.html", postData = _postData)
+    cur.execute(bookMarkQuery, (current_user.id, ))
+    _currentUsersBookmarkedPosts = cur.fetchall()
+
+    return render_template("accountInfo/viewDislikedPosts.html", postData = _postData, currentUsersBookmarkedPosts=_currentUsersBookmarkedPosts)
 
 @app.route("/redirectPostReplies/<_postID>", methods=['GET'])
 def redirectPostReplies(_postID):
@@ -820,9 +872,9 @@ def viewMyReplies():
 
     return render_template("accountInfo/viewMyReplies.html", postData = _postData)
 
-@app.route("/addBookmark/<_postID>", methods=['GET', 'POST'])
+@app.route("/addBookmark/<_postID>/<_pageFrom>", methods=['GET', 'POST'])
 @login_required
-def addBookmark(_postID):
+def addBookmark(_postID, _pageFrom):
         print(_postID, current_user.id)
         alreadyBookmarked = Bookmarks.query.filter_by(b_postID = _postID, b_userID = current_user.id).first()
 
@@ -840,7 +892,15 @@ def addBookmark(_postID):
             db.session.commit()
 
             flash('Post has been bookmarked')
-        return redirect(url_for('redirectFrontPage'))
+
+
+
+        if _pageFrom == "frontPage":
+            return redirect(url_for('redirectFrontPage'))
+        elif _pageFrom == "bookmarks":
+            return redirect(url_for('viewMyBookmarks'))
+
+        
 
 @app.route("/viewMyBookmarks", methods=['GET'])
 @login_required
@@ -855,14 +915,90 @@ def viewMyBookmarks():
             WHERE post_userID = user_id AND
                     postID = b_postID"""
     
+    bookMarkQuery = """ SELECT * 
+                        FROM Bookmarks
+                            WHERE  b_userID = ?"""
+    
     conn = openConnection(database)
     cur = conn.cursor()
     args = (current_user.id, )
     cur.execute(sql, args)
-
     _postData = cur.fetchall()
 
-    return render_template("accountInfo/viewMyBookmarks.html", postData=_postData)
+    cur.execute(bookMarkQuery, (current_user.id, ))
+    _currentUsersBookmarkedPosts = cur.fetchall()
+
+    return render_template("accountInfo/viewMyBookmarks.html", postData=_postData, currentUsersBookmarkedPosts=_currentUsersBookmarkedPosts)
+
+@app.route("/redirectChangePassword", methods=['GET'])
+@login_required
+def redirectEditPassword():
+    return render_template("accountInfo/editPassword.html")
+
+@app.route("/changePassword", methods=['POST'])
+@login_required
+def changePassword():
+    if request.method == 'POST':
+        _oldPassword = request.form['oldPassword'] 
+        _newPassword = request.form['newPassword'] 
+
+        _currentUser = Users.query.filter_by(user_id = current_user.id).one()
+
+        user = Logins.query.filter_by(id=current_user.id).first()
+
+        if not user.check_password(_oldPassword):
+            return render_template("accountInfo/editPassword.html", error = "Incorrect Password")
+        
+        else:
+            user.password = bcrypt.generate_password_hash(_newPassword).decode('utf-8')
+            db.session.commit()
+            return redirect(url_for('viewAccountInfo'))
+        
+@app.route("/deletePost/<_postID>", methods=['GET'])
+@login_required
+def deletePost(_postID):
+    #Check that post belongs to the current user 
+        #if it does, delete it and commit db, renew post data, render myPost template
+
+        #if NOT: return error message.3.
+        sql = """DELETE FROM Posts WHERE postId = ?"""
+        
+        postData = Posts.query.filter_by(postId = _postID).one()
+
+        if postData.post_userID == current_user.id:
+            # db.session.delete(postData)
+            # db.session.commit()
+            conn = openConnection(database)
+            cur = conn.cursor()
+            cur.execute(sql, (_postID))
+            conn.commit()
+            return redirect(url_for('viewMyPosts'))
+        else:
+            return "That wasnt your post to delete"
+        
+@app.route("/deleteReply/<_postID>", methods=['GET'])
+@login_required
+def deleteReply(_postID):
+    #Check that post belongs to the current user 
+        #if it does, delete it and commit db, renew post data, render myPost template
+
+        #if NOT: return error message.3.
+        sql = """DELETE FROM Posts WHERE postId = ?"""
+        
+        postData = Posts.query.filter_by(postId = _postID).one()
+
+        if postData.post_userID == current_user.id:
+            # db.session.delete(postData)
+            # db.session.commit()
+            conn = openConnection(database)
+            cur = conn.cursor()
+            cur.execute(sql, (_postID))
+            conn.commit()
+            return redirect(url_for('viewMyReplies'))
+        else:
+            return "That wasnt your post to delete"
+    
+
 
 
 

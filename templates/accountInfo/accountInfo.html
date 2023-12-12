@@ -16,6 +16,7 @@
 <!--            <p>user_id: {{ accountInfo[0] }}</p>-->
 <!--            <p>username: {{ accountInfo[1] }}</p>-->
             <a href="/redirectEditUsername"><button class="loginBtn" style="width:200px;">Edit Username</button></a>
+            <a href="/redirectChangePassword"><button class="loginBtn" style="width: 200px;">Change Password</button></a>
         <br>
         <br>
         <div class="accountContent">
@@ -27,7 +28,8 @@
                 <a href="/viewDislikedPosts"><button class="loginBtn" style="width: 200px;">Disliked Posts</button></a><br><br>
                 <a href="/viewMyPosts"><button class="loginBtn" style="width: 200px;">My Posts</button></a><br><br>
                 <a href="/viewMyReplies"><button class="loginBtn" style="width: 200px;">My Replies</button></a><br><br>
-                <a href="/viewMyBookmarks"><button class="loginBtn" style="width: 200px;">My Bookmarks</button></a>
+                <a href="/viewMyBookmarks"><button class="loginBtn" style="width: 200px;">My Bookmarks</button></a><br><br>
+                
                 </center>
             </div>
 
@@ -41,7 +43,7 @@
             <a href="/redirectEditBio"><button class="loginBtn">Edit Bio</button></a>
 
             <p style="font-style: normal;">Member since: {{ accountInfo[4] }}</p>
-            <p style="font-style: normal;">Profile Visits: {{ accountInfo[5] }}</p>
+            <!-- <p style="font-style: normal;">Profile Visits: {{ accountInfo[5] }}</p> -->
             </div>
 
         </div>
